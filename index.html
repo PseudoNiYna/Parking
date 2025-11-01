@@ -35,7 +35,7 @@ h1 { margin-bottom: 10px; }
 .vehicle-buttons button:hover {
   background: #2a2a2a;
 }
-input {
+input, select {
   width: 95%;
   padding: 10px;
   border: none;
@@ -143,6 +143,29 @@ function toggleLeft(id) {
   render();
 }
 
+function editTransaction(id) {
+  const t = transactions.find(x=>x.id===id);
+  const newType = prompt("Type (Motorcycle / Tricycle / E-Bike):", t.type);
+  const newQty = parseInt(prompt("Quantity:", t.qty)) || t.qty;
+  const newPlate = prompt("Plate / Ref:", t.plate);
+  let rate = 50;
+  if (newType.toLowerCase() === 'tricycle') rate = 75;
+  t.type = newType;
+  t.qty = newQty;
+  t.plate = newPlate;
+  t.amount = rate * newQty;
+  save();
+  render();
+}
+
+function deleteTransaction(id) {
+  if (confirm("Delete this transaction?")) {
+    transactions = transactions.filter(x=>x.id!==id);
+    save();
+    render();
+  }
+}
+
 function save() {
   localStorage.setItem('transactions', JSON.stringify(transactions));
 }
@@ -155,6 +178,8 @@ function render() {
       <br>
       <button class="action" onclick="togglePaid(${t.id})">${t.paid ? '✅ Paid' : 'Mark Paid'}</button>
       <button class="action" onclick="toggleLeft(${t.id})">${t.left ? '🚗 Left' : 'Mark Left'}</button>
+      <button class="action" onclick="editTransaction(${t.id})">✏️ Edit</button>
+      <button class="action" onclick="deleteTransaction(${t.id})">🗑 Delete</button>
     </div>
     <hr style="border-color:#222;">
   `).join('');
