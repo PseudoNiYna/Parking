@@ -142,18 +142,24 @@ function addTransaction() {
   const total = selectedRate * qty;
   const time = new Date().toLocaleString();
   const id = Date.now();
-  transactions.push({id, type: selectedType, price: selectedRate, qty, ref: plate, total, status: 'Unpaid', time});
+  transactions.push({
+    id, type: selectedType, price: selectedRate, qty, ref: plate,
+    total, paid: false, left: false, time
+  });
   save();
   render();
 }
 
-function toggleStatus(id, newStatus) {
+function togglePaid(id) {
   const t = transactions.find(x => x.id === id);
-  if (t.status === newStatus) {
-    t.status = 'Unpaid'; // toggle back
-  } else {
-    t.status = newStatus;
-  }
+  t.paid = !t.paid;
+  save();
+  render();
+}
+
+function toggleLeft(id) {
+  const t = transactions.find(x => x.id === id);
+  t.left = !t.left;
   save();
   render();
 }
@@ -190,9 +196,9 @@ function render() {
   const filter = document.getElementById('statusFilter').value;
   const filtered = transactions.filter(t => {
     if (filter === 'all') return true;
-    if (filter === 'unpaid') return t.status === 'Unpaid';
-    if (filter === 'paid') return t.status === 'Paid';
-    if (filter === 'left') return t.status === 'Left';
+    if (filter === 'unpaid') return !t.paid && !t.left;
+    if (filter === 'paid') return t.paid;
+    if (filter === 'left') return t.left;
   });
 
   const log = document.getElementById('log');
@@ -200,10 +206,10 @@ function render() {
     <div>
       <b>${t.type}</b> ₱${t.total} (${t.price}×${t.qty})<br>
       Ref: ${t.ref || '-'}<br>
-      Status: <span style="color:${t.status==='Paid'?'#4faaff':t.status==='Left'?'#9f6bff':'#aaa'}">${t.status}</span><br>
+      Status: ${statusText(t)}<br>
       Time: ${t.time}<br>
-      <button class="action" onclick="toggleStatus(${t.id}, 'Paid')">${t.status==='Paid'?'✅ Paid (Undo)':'Mark as Paid'}</button>
-      <button class="action" onclick="toggleStatus(${t.id}, 'Left')">${t.status==='Left'?'🚗 Left (Undo)':'Mark as Left'}</button>
+      <button class="action" onclick="togglePaid(${t.id})">${t.paid?'✅ Paid (Undo)':'Mark as Paid'}</button>
+      <button class="action" onclick="toggleLeft(${t.id})">${t.left?'🚗 Left (Undo)':'Mark as Left'}</button>
       <button class="action" onclick="editTransaction(${t.id})">✏️ Edit</button>
       <button class="action" onclick="deleteTransaction(${t.id})">🗑 Delete</button>
     </div>
@@ -211,9 +217,16 @@ function render() {
   `).join('');
 
   const totalAmount = transactions.reduce((a,b)=>a+b.total,0);
-  const totalPaid = transactions.filter(t=>t.status==='Paid').reduce((a,b)=>a+b.total,0);
+  const totalPaid = transactions.filter(t=>t.paid).reduce((a,b)=>a+b.total,0);
   document.getElementById('totals').innerHTML =
     `Total items: ${transactions.length} | Total amount: ₱${totalAmount.toFixed(2)} | Total paid: ₱${totalPaid.toFixed(2)}`;
+}
+
+function statusText(t) {
+  if (t.paid && t.left) return '<span style="color:#9f6bff">Paid & Left</span>';
+  if (t.paid) return '<span style="color:#4faaff">Paid</span>';
+  if (t.left) return '<span style="color:#9f6bff">Left</span>';
+  return '<span style="color:#aaa">Unpaid</span>';
 }
 
 function clearAll() {
@@ -225,8 +238,8 @@ function clearAll() {
 }
 
 function exportCSV() {
-  const headers = ['Type','Price','Qty','Ref','Total','Status','Time'];
-  const rows = transactions.map(t=>[t.type,t.price,t.qty,t.ref,t.total,t.status,t.time]);
+  const headers = ['Type','Price','Qty','Ref','Total','Paid','Left','Time'];
+  const rows = transactions.map(t=>[t.type,t.price,t.qty,t.ref,t.total,t.paid,t.left,t.time]);
   const csv = [headers.join(','),...rows.map(r=>r.join(','))].join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
@@ -247,7 +260,7 @@ function importCSV() {
       const lines = reader.result.split('\n').slice(1);
       for (const line of lines) {
         if (!line.trim()) continue;
-        const [type, price, qty, ref, total, status, time] = line.split(',');
+        const [type, price, qty, ref, total, paid, left, time] = line.split(',');
         transactions.push({
           id: Date.now()+Math.random(),
           type,
@@ -255,7 +268,8 @@ function importCSV() {
           qty: parseInt(qty),
           ref,
           total: parseFloat(total),
-          status,
+          paid: paid==='true',
+          left: left==='true',
           time
         });
       }
