@@ -1,261 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pay Parking</title>
-  <style>
-    body {
-      background-color: #121212;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #00d9ff;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    input, select, button {
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-      font-size: 15px;
-    }
-    input, select {
-      background-color: #2a2a2a;
-      color: #eee;
-    }
-    button {
-      background-color: #00d9ff;
-      color: #000;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.2s;
-    }
-    button:hover {
-      background-color: #00aacc;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #333;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background-color: #1f1f1f;
-      color: #00d9ff;
-    }
-    tr:nth-child(even) {
-      background-color: #1c1c1c;
-    }
-    .totals {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 18px;
-    }
-    .footer-controls {
-      margin-top: 20px;
-      text-align: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay Parking</title>
+<style>
+body {
+  background: #0f0f0f;
+  color: #f1f1f1;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+.container {
+  background: #161616;
+  padding: 20px 30px;
+  border-radius: 20px;
+  box-shadow: 0 0 20px #000;
+  width: 400px;
+}
+h1 { margin-bottom: 10px; }
+.vehicle-buttons button {
+  background: #1f1f1f;
+  border: none;
+  color: #4faaff;
+  padding: 12px;
+  border-radius: 12px;
+  width: 30%;
+  margin: 5px 2px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.vehicle-buttons button:hover {
+  background: #2a2a2a;
+}
+input, select {
+  width: 95%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #1c1c1c;
+  color: #fff;
+  margin: 6px 0;
+}
+.add-btn {
+  background: linear-gradient(135deg,#4faaff,#9f6bff);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+}
+.log {
+  margin-top: 15px;
+  background: #111;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+button.action {
+  background: #222;
+  border: none;
+  padding: 6px 10px;
+  margin: 3px;
+  border-radius: 6px;
+  color: #aaa;
+  cursor: pointer;
+}
+button.action:hover {
+  background: #333;
+  color: #fff;
+}
+.totals {
+  margin-top: 10px;
+  font-size: 15px;
+}
+.status-filter {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 10px;
+  background: #1c1c1c;
+  color: #fff;
+  border: none;
+}
+</style>
 </head>
 <body>
+<div class="container">
   <h1>Pay Parking</h1>
-
-  <div class="controls">
-    <select id="vehicleType">
-      <option value="Motorcycle" data-price="50">Motorcycle - ₱50</option>
-      <option value="Tricycle" data-price="75">Tricycle - ₱75</option>
-      <option value="E-bike" data-price="50">E-bike - ₱50</option>
-    </select>
-    <input type="number" id="qty" min="1" placeholder="Qty" value="1" />
-    <input type="text" id="ref" placeholder="Ref (Plate)" />
-    <button id="addBtn">Add Entry</button>
-    <select id="filterStatus">
-      <option value="All">All</option>
-      <option value="Unpaid">Unpaid</option>
-      <option value="Paid">Paid</option>
-      <option value="Left">Left</option>
-    </select>
-    <button id="importBtn">Import CSV</button>
-    <button id="exportBtn">Export CSV</button>
-    <input type="file" id="fileInput" accept=".csv" style="display:none" />
+  <p>Motorcycle ₱50 · Tricycle ₱75 · E-Bike ₱50</p>
+  <div class="vehicle-buttons">
+    <button onclick="selectType('Motorcycle',50)">Motorcycle<br>₱50</button>
+    <button onclick="selectType('Tricycle',75)">Tricycle<br>₱75</button>
+    <button onclick="selectType('E-Bike',50)">E-Bike<br>₱50</button>
   </div>
 
-  <table id="parkingTable">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Price</th>
-        <th>Qty</th>
-        <th>Ref</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th>Time</th>
-        <th>Edit</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <input id="qty" type="number" placeholder="Qty" value="1">
+  <input id="plate" type="text" placeholder="Ref (optional)">
+  <button class="add-btn" onclick="addTransaction()">Add</button>
 
-  <div class="totals">
-    <p>Total Paid: ₱<span id="paidTotal">0</span></p>
-    <p>Total Left: ₱<span id="leftTotal">0</span></p>
-    <p>Overall Total: ₱<span id="overallTotal">0</span></p>
-  </div>
+  <h2>Transaction Log</h2>
+  <select id="statusFilter" class="status-filter" onchange="render()">
+    <option value="all">Show All</option>
+    <option value="unpaid">Unpaid Only</option>
+    <option value="paid">Paid Only</option>
+    <option value="left">Left Only</option>
+  </select>
 
-  <div class="footer-controls">
-    <button id="resetBtn">Reset All</button>
-  </div>
+  <div class="log" id="log"></div>
 
-  <script>
-    const vehicleType = document.getElementById("vehicleType");
-    const qtyInput = document.getElementById("qty");
-    const refInput = document.getElementById("ref");
-    const addBtn = document.getElementById("addBtn");
-    const parkingTable = document.getElementById("parkingTable").querySelector("tbody");
-    const paidTotalEl = document.getElementById("paidTotal");
-    const leftTotalEl = document.getElementById("leftTotal");
-    const overallTotalEl = document.getElementById("overallTotal");
-    const resetBtn = document.getElementById("resetBtn");
-    const fileInput = document.getElementById("fileInput");
-    const importBtn = document.getElementById("importBtn");
-    const exportBtn = document.getElementById("exportBtn");
-    const filterStatus = document.getElementById("filterStatus");
+  <div class="totals" id="totals"></div>
 
-    let entries = JSON.parse(localStorage.getItem("parkingEntries") || "[]");
+  <button class="action" onclick="clearAll()">Clear</button>
+  <button class="action" onclick="exportCSV()">Export CSV</button>
+  <button class="action" onclick="importCSV()">Import CSV</button>
+  <button class="action" onclick="window.print()">Print</button>
 
-    function saveData() {
-      localStorage.setItem("parkingEntries", JSON.stringify(entries));
-      renderTable();
-    }
+  <p style="font-size:12px;margin-top:10px;">Made for your pay parking business</p>
+</div>
 
-    function renderTable() {
-      parkingTable.innerHTML = "";
-      let paidTotal = 0, leftTotal = 0, overallTotal = 0;
-      const filter = filterStatus.value;
-      entries.forEach((entry, index) => {
-        if (filter !== "All" && entry.status !== filter) return;
-        const row = document.createElement("tr");
+<script>
+let selectedType = null;
+let selectedRate = 0;
+let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
 
-        row.innerHTML = `
-          <td>${entry.type}</td>
-          <td>₱${entry.price}</td>
-          <td>${entry.qty}</td>
-          <td>${entry.ref}</td>
-          <td>₱${entry.total}</td>
-          <td>
-            <select onchange="updateStatus(${index}, this.value)">
-              <option ${entry.status === "Unpaid" ? "selected" : ""}>Unpaid</option>
-              <option ${entry.status === "Paid" ? "selected" : ""}>Paid</option>
-              <option ${entry.status === "Left" ? "selected" : ""}>Left</option>
-            </select>
-          </td>
-          <td>${entry.time}</td>
-          <td><button onclick="editEntry(${index})">✏️</button></td>
-        `;
-        parkingTable.appendChild(row);
-        overallTotal += entry.total;
-        if (entry.status === "Paid") paidTotal += entry.total;
-        if (entry.status === "Left") leftTotal += entry.total;
-      });
-      paidTotalEl.textContent = paidTotal;
-      leftTotalEl.textContent = leftTotal;
-      overallTotalEl.textContent = overallTotal;
-    }
+function selectType(type, rate) {
+  selectedType = type;
+  selectedRate = rate;
+  alert(`${type} selected (₱${rate})`);
+}
 
-    function addEntry() {
-      const type = vehicleType.value;
-      const price = parseInt(vehicleType.selectedOptions[0].dataset.price);
-      const qty = parseInt(qtyInput.value);
-      const ref = refInput.value || "-";
-      const total = price * qty;
-      const time = new Date().toLocaleString();
-      const status = "Unpaid";
-      entries.push({ type, price, qty, ref, total, status, time });
-      saveData();
-      qtyInput.value = 1;
-      refInput.value = "";
-    }
+function addTransaction() {
+  if (!selectedType) return alert('Select vehicle type first!');
+  const qty = parseInt(document.getElementById('qty').value) || 1;
+  const plate = document.getElementById('plate').value || '';
+  const total = selectedRate * qty;
+  const time = new Date().toLocaleString();
+  const id = Date.now();
+  transactions.push({id, type: selectedType, price: selectedRate, qty, ref: plate, total, status: 'Unpaid', time});
+  save();
+  render();
+}
 
-    function updateStatus(index, newStatus) {
-      entries[index].status = newStatus;
-      saveData();
-    }
+function toggleStatus(id, newStatus) {
+  const t = transactions.find(x => x.id === id);
+  if (t.status === newStatus) {
+    t.status = 'Unpaid'; // toggle back
+  } else {
+    t.status = newStatus;
+  }
+  save();
+  render();
+}
 
-    function editEntry(index) {
-      const e = entries[index];
-      const newQty = prompt("Enter new quantity:", e.qty);
-      const newRef = prompt("Enter new Ref:", e.ref);
-      if (newQty && !isNaN(newQty)) e.qty = parseInt(newQty);
-      if (newRef) e.ref = newRef;
-      e.total = e.price * e.qty;
-      saveData();
-    }
+function editTransaction(id) {
+  const t = transactions.find(x => x.id === id);
+  const newType = prompt("Type (Motorcycle / Tricycle / E-Bike):", t.type);
+  const newQty = parseInt(prompt("Quantity:", t.qty)) || t.qty;
+  const newRef = prompt("Ref:", t.ref);
+  let rate = 50;
+  if (newType && newType.toLowerCase() === 'tricycle') rate = 75;
+  t.type = newType || t.type;
+  t.price = rate;
+  t.qty = newQty;
+  t.ref = newRef || t.ref;
+  t.total = rate * newQty;
+  save();
+  render();
+}
 
-    function resetAll() {
-      if (confirm("Clear all records?")) {
-        entries = [];
-        saveData();
-      }
-    }
+function deleteTransaction(id) {
+  if (confirm("Delete this transaction?")) {
+    transactions = transactions.filter(x => x.id !== id);
+    save();
+    render();
+  }
+}
 
-    function exportCSV() {
-      let csv = "Type,Price,Qty,Ref,Total,Status,Time\n";
-      entries.forEach(e => {
-        csv += `${e.type},${e.price},${e.qty},${e.ref},${e.total},${e.status},${e.time}\n`;
-      });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "pay_parking_data.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+function save() {
+  localStorage.setItem('transactions', JSON.stringify(transactions));
+}
 
-    function importCSV(file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const lines = e.target.result.split("\n").slice(1);
-        lines.forEach(line => {
-          const [type, price, qty, ref, total, status, time] = line.split(",");
-          if (!type) return;
-          entries.push({
-            type,
-            price: parseInt(price),
-            qty: parseInt(qty),
-            ref: ref || "-",
-            total: parseInt(total),
-            status: status.trim(),
-            time: time?.trim() || new Date().toLocaleString()
-          });
+function render() {
+  const filter = document.getElementById('statusFilter').value;
+  const filtered = transactions.filter(t => {
+    if (filter === 'all') return true;
+    if (filter === 'unpaid') return t.status === 'Unpaid';
+    if (filter === 'paid') return t.status === 'Paid';
+    if (filter === 'left') return t.status === 'Left';
+  });
+
+  const log = document.getElementById('log');
+  log.innerHTML = filtered.map(t => `
+    <div>
+      <b>${t.type}</b> ₱${t.total} (${t.price}×${t.qty})<br>
+      Ref: ${t.ref || '-'}<br>
+      Status: <span style="color:${t.status==='Paid'?'#4faaff':t.status==='Left'?'#9f6bff':'#aaa'}">${t.status}</span><br>
+      Time: ${t.time}<br>
+      <button class="action" onclick="toggleStatus(${t.id}, 'Paid')">${t.status==='Paid'?'✅ Paid (Undo)':'Mark as Paid'}</button>
+      <button class="action" onclick="toggleStatus(${t.id}, 'Left')">${t.status==='Left'?'🚗 Left (Undo)':'Mark as Left'}</button>
+      <button class="action" onclick="editTransaction(${t.id})">✏️ Edit</button>
+      <button class="action" onclick="deleteTransaction(${t.id})">🗑 Delete</button>
+    </div>
+    <hr style="border-color:#222;">
+  `).join('');
+
+  const totalAmount = transactions.reduce((a,b)=>a+b.total,0);
+  const totalPaid = transactions.filter(t=>t.status==='Paid').reduce((a,b)=>a+b.total,0);
+  document.getElementById('totals').innerHTML =
+    `Total items: ${transactions.length} | Total amount: ₱${totalAmount.toFixed(2)} | Total paid: ₱${totalPaid.toFixed(2)}`;
+}
+
+function clearAll() {
+  if (confirm('Clear all data?')) {
+    transactions = [];
+    save();
+    render();
+  }
+}
+
+function exportCSV() {
+  const headers = ['Type','Price','Qty','Ref','Total','Status','Time'];
+  const rows = transactions.map(t=>[t.type,t.price,t.qty,t.ref,t.total,t.status,t.time]);
+  const csv = [headers.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'transactions.csv';
+  a.click();
+}
+
+function importCSV() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const lines = reader.result.split('\n').slice(1);
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const [type, price, qty, ref, total, status, time] = line.split(',');
+        transactions.push({
+          id: Date.now()+Math.random(),
+          type,
+          price: parseFloat(price),
+          qty: parseInt(qty),
+          ref,
+          total: parseFloat(total),
+          status,
+          time
         });
-        saveData();
-      };
-      reader.readAsText(file);
-    }
+      }
+      save();
+      render();
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
 
-    addBtn.onclick = addEntry;
-    resetBtn.onclick = resetAll;
-    exportBtn.onclick = exportCSV;
-    importBtn.onclick = () => fileInput.click();
-    fileInput.onchange = e => importCSV(e.target.files[0]);
-    filterStatus.onchange = renderTable;
-
-    renderTable();
-  </script>
+render();
+</script>
 </body>
 </html>
