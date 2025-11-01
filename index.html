@@ -1,229 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pay Parking</title>
   <style>
-    :root {
-      --bg:#0b0b0d;
-      --panel:#0f1720;
-      --muted:#9aa4b2;
-      --accent:#24d0ff;
-      --accent-2:#7c3aed;
-      --radius:12px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
-    * { box-sizing:border-box }
     body {
-      margin:0;
-      background:linear-gradient(180deg,var(--bg) 0%, #050507 100%);
-      color:#e6eef6;
-      padding:18px;
+      background: #0d0d0d;
+      color: #eee;
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
     }
-    .app {
-      max-width:980px;
-      margin:0 auto;
-      background:rgba(255,255,255,0.02);
-      padding:20px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,0.03);
-      box-shadow:0 10px 30px rgba(2,6,23,0.6);
+    .container {
+      background: #111;
+      border-radius: 20px;
+      padding: 25px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
     }
-    h1 { margin:0; font-size:1.5rem; }
-    .rates { color:var(--muted); font-size:0.9rem; margin-top:4px; }
-
-    .vehicle-row {
-      display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;
+    h1 {
+      margin-bottom: 10px;
     }
-    .vehicle {
-      flex:1 1 30%;
-      background:rgba(255,255,255,0.02);
-      border:1px solid rgba(255,255,255,0.05);
-      padding:12px;
-      border-radius:12px;
-      color:var(--accent);
-      font-weight:700;
-      cursor:pointer;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      min-height:70px;
+    .desc {
+      color: #aaa;
+      font-size: 14px;
+      margin-bottom: 20px;
     }
-    .vehicle span { color:var(--muted); font-size:0.9rem; margin-top:6px; }
-
-    .inputs { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
-    .inputs label { display:flex; flex-direction:column; color:var(--muted); font-size:0.9rem; }
-    .inputs input {
-      padding:8px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,0.05);
-      background:rgba(255,255,255,0.03);
-      color:#e6eef6;
-      min-width:140px;
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
     }
-    .btn-add {
-      background:linear-gradient(90deg,var(--accent),var(--accent-2));
-      border:0; color:#071427;
-      padding:10px 14px;
-      border-radius:10px;
-      font-weight:700;
-      cursor:pointer;
+    button.vehicle {
+      flex: 1;
+      background: #181818;
+      border: 1px solid #333;
+      border-radius: 12px;
+      color: #8ab4f8;
+      font-weight: 600;
+      padding: 10px 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
-
-    .tx-list {
-      list-style:none; padding:0; margin:16px 0;
-      max-height:240px; overflow:auto;
-      border:1px solid rgba(255,255,255,0.05);
-      border-radius:10px;
+    button.vehicle:hover {
+      background: #1f1f1f;
+      transform: scale(1.05);
     }
-    .tx-item {
-      display:flex; justify-content:space-between;
-      padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.05);
+    input {
+      width: 100%;
+      padding: 10px;
+      background: #181818;
+      border: 1px solid #333;
+      border-radius: 10px;
+      color: #eee;
+      margin-bottom: 10px;
     }
-    .tx-item small { color:var(--muted); }
-
-    .summary {
-      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
-      margin-top:12px;
+    .add-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #4a6cf7, #6a5acd);
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
     }
-    .actions { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
-    button.btn-clear,button.btn-export,button.btn-print {
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.1);
-      color:var(--muted);
-      padding:8px 10px;
-      border-radius:8px;
-      cursor:pointer;
+    .add-btn:hover {
+      opacity: 0.9;
     }
-
-    footer { margin-top:16px; text-align:center; color:var(--muted); font-size:0.85rem; }
+    hr {
+      border: 0;
+      border-top: 1px solid #333;
+      margin: 15px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 4px 0;
+    }
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: space-between;
+    }
+    .footer button {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #eee;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .footer button:hover {
+      background: #242424;
+    }
+    .note {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header>
-      <h1>Pay Parking</h1>
-      <div class="rates">Motorcycle ₱50 • Tricycle ₱75 • E-Bike ₱50</div>
-    </header>
+  <div class="container">
+    <h1>Pay Parking</h1>
+    <div class="desc">Motorcycle ₱50 • Tricycle ₱75 • E-Bike ₱50</div>
 
-    <div class="vehicle-row">
-      <button class="vehicle" data-type="motorcycle">Motorcycle<br><span>₱50</span></button>
-      <button class="vehicle" data-type="tricycle">Tricycle<br><span>₱75</span></button>
-      <button class="vehicle" data-type="ebike">E-Bike<br><span>₱50</span></button>
+    <div class="buttons">
+      <button class="vehicle" data-type="Motorcycle" data-price="50">Motorcycle<br>₱50</button>
+      <button class="vehicle" data-type="Tricycle" data-price="75">Tricycle<br>₱75</button>
+      <button class="vehicle" data-type="E-Bike" data-price="50">E-Bike<br>₱50</button>
     </div>
 
-    <div class="inputs">
-      <label>Qty<input id="qty" type="number" min="1" value="1"></label>
-      <label>Plate / Ref<input id="plate" type="text" placeholder="Optional"></label>
-      <button id="addBtn" class="btn-add">Add</button>
+    <input type="number" id="qty" placeholder="Qty" value="1" min="1" />
+    <input type="text" id="ref" placeholder="Plate / Ref (Optional)" />
+    <button class="add-btn" id="addBtn">Add</button>
+
+    <h2>Transaction Log</h2>
+    <hr />
+    <table id="log"></table>
+    <div id="summary">Total items: 0 | Total amount: ₱0.00</div>
+
+    <div class="footer">
+      <button id="clear">Clear</button>
+      <button id="export">Export CSV</button>
+      <button id="print">Print</button>
     </div>
-
-    <h2 style="color:#9aa4b2;margin-top:18px;">Transaction Log</h2>
-    <ul id="txList" class="tx-list"></ul>
-
-    <div class="summary">
-      <div>
-        Total items: <strong id="totalItems">0</strong> |
-        Total amount: <strong id="totalAmount">₱0.00</strong>
-      </div>
-      <div class="actions">
-        <button id="clearBtn" class="btn-clear">Clear</button>
-        <button id="exportBtn" class="btn-export">Export CSV</button>
-        <button id="printBtn" class="btn-print">Print</button>
-      </div>
-    </div>
-
-    <footer>Made for your pay parking business</footer>
-  </main>
+    <div class="note">Made for your pay parking business</div>
+  </div>
 
   <script>
-    const PRICES = { motorcycle:50, tricycle:75, ebike:50 };
-    const STORAGE_KEY = 'pay_parking_v1';
-    let state = { tx: [] };
+    const logEl = document.getElementById("log");
+    const summaryEl = document.getElementById("summary");
+    const qtyEl = document.getElementById("qty");
+    const refEl = document.getElementById("ref");
+    const addBtn = document.getElementById("addBtn");
+    let selectedType = null;
+    let price = 0;
 
-    const qs = s => document.querySelector(s);
-    const qtyInput = qs('#qty');
-    const plateInput = qs('#plate');
-    const txList = qs('#txList');
-    const totalAmountEl = qs('#totalAmount');
-    const totalItemsEl = qs('#totalItems');
-
-    function fmt(n){ return Number(n).toFixed(2); }
-    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    function load(){ try{ const raw = localStorage.getItem(STORAGE_KEY); state = raw ? JSON.parse(raw) : {tx:[]}; }catch{ state = {tx:[]}; } }
-
-    function render(){
-      txList.innerHTML = '';
-      let total = 0, items = 0;
-      state.tx.forEach((t,i)=>{
-        const li = document.createElement('li');
-        li.className='tx-item';
-        const subtotal = t.qty*t.price;
-        total += subtotal; items += t.qty;
-        li.innerHTML = `
-          <div><strong>${t.qty}× ${t.type}</strong> <small>${t.plate||''}</small></div>
-          <div style="text-align:right">
-            ₱${fmt(subtotal)}<br>
-            <button data-index="${i}" style="background:none;border:0;color:#24d0ff;cursor:pointer;">Remove</button>
-          </div>`;
-        txList.appendChild(li);
-      });
-      totalAmountEl.textContent = '₱'+fmt(total);
-      totalItemsEl.textContent = items;
-    }
-
-    function addTx(type, qty, plate){
-      const price = PRICES[type];
-      const tx = { type, qty, plate, price, time: new Date().toLocaleString() };
-      state.tx.push(tx);
-      save(); render();
-    }
-
-    document.querySelectorAll('.vehicle').forEach(b=>{
-      b.addEventListener('click',()=>{
-        const type=b.dataset.type;
-        const qty=Math.max(1,parseInt(qtyInput.value||'1'));
-        addTx(type, qty, plateInput.value.trim());
-        plateInput.value='';
+    document.querySelectorAll(".vehicle").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedType = btn.dataset.type;
+        price = parseFloat(btn.dataset.price);
+        document.querySelectorAll(".vehicle").forEach(b => b.style.borderColor = "#333");
+        btn.style.borderColor = "#4a6cf7";
       });
     });
 
-    qs('#addBtn').onclick=()=>{
-      const type=prompt('Enter vehicle type (motorcycle,tricycle,ebike):','motorcycle');
-      if(!type||!PRICES[type]) return alert('Invalid type');
-      const qty=Math.max(1,parseInt(qtyInput.value||'1'));
-      addTx(type, qty, plateInput.value.trim());
-      plateInput.value='';
-    };
+    let transactions = JSON.parse(localStorage.getItem("transactions") || "[]");
+    render();
 
-    txList.addEventListener('click',e=>{
-      if(e.target.tagName==='BUTTON'){
-        const i=+e.target.dataset.index;
-        state.tx.splice(i,1); save(); render();
+    addBtn.addEventListener("click", () => {
+      const qty = parseInt(qtyEl.value) || 1;
+      if (!selectedType) return alert("Select a vehicle type first.");
+      transactions.push({
+        type: selectedType,
+        price,
+        qty,
+        ref: refEl.value.trim(),
+        total: qty * price,
+        time: new Date().toLocaleTimeString()
+      });
+      save();
+      render();
+      qtyEl.value = 1;
+      refEl.value = "";
+    });
+
+    document.getElementById("clear").onclick = () => {
+      if (confirm("Clear all transactions?")) {
+        transactions = [];
+        save();
+        render();
       }
-    });
-
-    qs('#clearBtn').onclick=()=>{
-      if(confirm('Clear all transactions?')){ state.tx=[]; save(); render(); }
     };
 
-    qs('#exportBtn').onclick=()=>{
-      if(!state.tx.length) return alert('No transactions to export');
-      const rows=state.tx.map((t,i)=>[i+1,t.time,t.type,t.plate,t.qty,t.price,t.qty*t.price]);
-      const csv=['index,time,type,plate,qty,price,subtotal',...rows.map(r=>r.join(','))].join('\\n');
-      const blob=new Blob([csv],{type:'text/csv'});
-      const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-      a.download='transactions.csv'; a.click();
+    document.getElementById("export").onclick = () => {
+      let csv = "Type,Price,Qty,Ref,Total,Time\n";
+      transactions.forEach(t => {
+        csv += `${t.type},${t.price},${t.qty},${t.ref},${t.total},${t.time}\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "transactions.csv";
+      a.click();
+      URL.revokeObjectURL(url);
     };
 
-    qs('#printBtn').onclick=()=>{
-      if(!state.tx.length) return alert('No transactions to print');
-      const rows=state.tx.map((t,i)=>\`<tr><td>\${i+1}</td><td>\${t.time}</td><td>\${t.type}</td><td>\${t.plate}</td><td>\${t.qty}</td><td>₱\${fmt(t.price)}</td><td>₱\${fmt(t.qty*t.price)}</td></tr>\`).join('');
-      const w=window.open('','_blank');
-      w.document.write(\`<html><head><title>Pay Parking</title></head><body><h2>Pay Parking Receipt</h2><table border="1" cellspacing="0" cellpadding="4" width="100%"><tr><th>#</th><th>Time</th><th>Type</th><th>Plate</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>\${rows}</table></body></html>\`);
-      w.document.close(); w.print();
-    };
+    document.getElementById("print").onclick = () => window.print();
 
-    load(); render();
+    function save() {
+      localStorage.setItem("transactions", JSON.stringify(transactions));
+    }
+
+    function render() {
+      logEl.innerHTML = "";
+      let totalItems = 0, totalAmount = 0;
+      transactions.forEach(t => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${t.type}</td><td>₱${t.total}</td><td>${t.ref || ""}</td><td>${t.time}</td>`;
+        logEl.appendChild(row);
+        totalItems += t.qty;
+        totalAmount += t.total;
+      });
+      summaryEl.innerText = `Total items: ${totalItems} | Total amount: ₱${totalAmount.toFixed(2)}`;
+    }
   </script>
 </body>
 </html>
