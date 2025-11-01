@@ -111,7 +111,8 @@
   </table>
 
   <div class="totals">
-    <p>Total Collected: ₱<span id="paidTotal">0</span></p>
+    <p>Total Paid: ₱<span id="paidTotal">0</span></p>
+    <p>Total Left: ₱<span id="leftTotal">0</span></p>
     <p>Overall Total: ₱<span id="overallTotal">0</span></p>
   </div>
 
@@ -126,6 +127,7 @@
     const addBtn = document.getElementById("addBtn");
     const parkingTable = document.getElementById("parkingTable").querySelector("tbody");
     const paidTotalEl = document.getElementById("paidTotal");
+    const leftTotalEl = document.getElementById("leftTotal");
     const overallTotalEl = document.getElementById("overallTotal");
     const resetBtn = document.getElementById("resetBtn");
     const fileInput = document.getElementById("fileInput");
@@ -142,7 +144,7 @@
 
     function renderTable() {
       parkingTable.innerHTML = "";
-      let paidTotal = 0, overallTotal = 0;
+      let paidTotal = 0, leftTotal = 0, overallTotal = 0;
       const filter = filterStatus.value;
       entries.forEach((entry, index) => {
         if (filter !== "All" && entry.status !== filter) return;
@@ -167,8 +169,10 @@
         parkingTable.appendChild(row);
         overallTotal += entry.total;
         if (entry.status === "Paid") paidTotal += entry.total;
+        if (entry.status === "Left") leftTotal += entry.total;
       });
       paidTotalEl.textContent = paidTotal;
+      leftTotalEl.textContent = leftTotal;
       overallTotalEl.textContent = overallTotal;
     }
 
