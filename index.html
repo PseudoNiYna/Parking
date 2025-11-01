@@ -18,7 +18,7 @@
       border-radius: 20px;
       padding: 25px;
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
     }
     h1 {
@@ -80,12 +80,30 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 13px;
       margin-bottom: 10px;
-      font-size: 14px;
     }
     th, td {
       text-align: left;
-      padding: 4px 0;
+      padding: 6px 0;
+    }
+    td button {
+      font-size: 12px;
+      padding: 4px 6px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .paid-btn {
+      background: #2a5;
+      color: #fff;
+    }
+    .left-btn {
+      background: #f55;
+      color: #fff;
+    }
+    .status {
+      font-weight: 600;
     }
     .footer {
       display: flex;
@@ -167,11 +185,13 @@
       const qty = parseInt(qtyEl.value) || 1;
       if (!selectedType) return alert("Select a vehicle type first.");
       transactions.push({
+        id: Date.now(),
         type: selectedType,
         price,
         qty,
         ref: refEl.value.trim(),
         total: qty * price,
+        status: "Unpaid",
         time: new Date().toLocaleTimeString()
       });
       save();
@@ -189,9 +209,9 @@
     };
 
     document.getElementById("export").onclick = () => {
-      let csv = "Type,Price,Qty,Ref,Total,Time\n";
+      let csv = "Type,Price,Qty,Ref,Total,Status,Time\n";
       transactions.forEach(t => {
-        csv += `${t.type},${t.price},${t.qty},${t.ref},${t.total},${t.time}\n`;
+        csv += `${t.type},${t.price},${t.qty},${t.ref},${t.total},${t.status},${t.time}\n`;
       });
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
@@ -208,18 +228,38 @@
       localStorage.setItem("transactions", JSON.stringify(transactions));
     }
 
+    function updateStatus(id, newStatus) {
+      const t = transactions.find(t => t.id === id);
+      if (t) {
+        t.status = newStatus;
+        save();
+        render();
+      }
+    }
+
     function render() {
       logEl.innerHTML = "";
       let totalItems = 0, totalAmount = 0;
       transactions.forEach(t => {
         const row = document.createElement("tr");
-        row.innerHTML = `<td>${t.type}</td><td>₱${t.total}</td><td>${t.ref || ""}</td><td>${t.time}</td>`;
+        row.innerHTML = `
+          <td>${t.type}</td>
+          <td>₱${t.total}</td>
+          <td>${t.ref || ""}</td>
+          <td class="status">${t.status}</td>
+          <td>
+            ${t.status === "Unpaid" ? `<button class="paid-btn" onclick="updateStatus(${t.id}, 'Paid')">Mark Paid</button>` : ""}
+            ${t.status !== "Left" ? `<button class="left-btn" onclick="updateStatus(${t.id}, 'Left')">Mark Left</button>` : ""}
+          </td>
+        `;
         logEl.appendChild(row);
         totalItems += t.qty;
         totalAmount += t.total;
       });
       summaryEl.innerText = `Total items: ${totalItems} | Total amount: ₱${totalAmount.toFixed(2)}`;
     }
+
+    window.updateStatus = updateStatus;
   </script>
 </body>
 </html>
