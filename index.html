@@ -91,7 +91,7 @@ button.action:hover {
     <button onclick="selectType('E-Bike',50)">E-Bike<br>₱50</button>
   </div>
   <input id="qty" type="number" placeholder="Qty" value="1">
-  <input id="plate" type="text" placeholder="Plate / Ref (optional)">
+  <input id="ref" type="text" placeholder="Ref (optional)">
   <button class="add-btn" onclick="addTransaction()">Add</button>
 
   <h2>Transaction Log</h2>
@@ -121,10 +121,11 @@ function selectType(type, rate) {
 function addTransaction() {
   if (!selectedType) return alert('Select vehicle type first!');
   const qty = parseInt(document.getElementById('qty').value) || 1;
-  const plate = document.getElementById('plate').value || '';
+  const ref = document.getElementById('ref').value || '';
   const amount = selectedRate * qty;
   const id = Date.now();
-  transactions.push({id, type: selectedType, qty, plate, amount, paid: false, left: false});
+  const time = new Date().toLocaleString();
+  transactions.push({id, type: selectedType, price: selectedRate, qty, ref, amount, paid: false, left: false, status:'Unpaid', time});
   save();
   render();
 }
@@ -132,6 +133,7 @@ function addTransaction() {
 function togglePaid(id) {
   const t = transactions.find(x=>x.id===id);
   t.paid = !t.paid;
+  t.status = t.paid ? 'Paid' : 'Unpaid';
   save();
   render();
 }
@@ -139,6 +141,7 @@ function togglePaid(id) {
 function toggleLeft(id) {
   const t = transactions.find(x=>x.id===id);
   t.left = !t.left;
+  if (t.left) t.status = 'Left';
   save();
   render();
 }
@@ -147,12 +150,13 @@ function editTransaction(id) {
   const t = transactions.find(x=>x.id===id);
   const newType = prompt("Type (Motorcycle / Tricycle / E-Bike):", t.type);
   const newQty = parseInt(prompt("Quantity:", t.qty)) || t.qty;
-  const newPlate = prompt("Plate / Ref:", t.plate);
+  const newRef = prompt("Ref:", t.ref);
   let rate = 50;
   if (newType.toLowerCase() === 'tricycle') rate = 75;
   t.type = newType;
   t.qty = newQty;
-  t.plate = newPlate;
+  t.ref = newRef;
+  t.price = rate;
   t.amount = rate * newQty;
   save();
   render();
@@ -174,8 +178,8 @@ function render() {
   const log = document.getElementById('log');
   log.innerHTML = transactions.map(t => `
     <div>
-      <b>${t.type}</b> ₱${t.amount} x${t.qty} ${t.plate ? '('+t.plate+')' : ''}
-      <br>
+      <b>${t.type}</b> ₱${t.amount} x${t.qty} ${t.ref ? '('+t.ref+')' : ''}
+      <br>Status: ${t.status} <small>${t.time}</small><br>
       <button class="action" onclick="togglePaid(${t.id})">${t.paid ? '✅ Paid' : 'Mark Paid'}</button>
       <button class="action" onclick="toggleLeft(${t.id})">${t.left ? '🚗 Left' : 'Mark Left'}</button>
       <button class="action" onclick="editTransaction(${t.id})">✏️ Edit</button>
@@ -198,39 +202,67 @@ function clearAll() {
   }
 }
 
+// CSV Export (type,price,qty,ref,total,status,time)
 function exportCSV() {
-  const headers = ['Type','Qty','Plate','Amount','Paid','Left'];
-  const rows = transactions.map(t=>[t.type,t.qty,t.plate,t.amount,t.paid,t.left]);
-  const csv = [headers.join(','),...rows.map(r=>r.join(','))].join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
+  const header = ['type','price','qty','ref','total','status','time'];
+  const rows = transactions.map(t=>[
+    t.type,
+    t.price,
+    t.qty,
+    t.ref || '',
+    t.amount,
+    t.status || (t.paid?'Paid':t.left?'Left':'Unpaid'),
+    t.time
+  ]);
+  const csv = [header.join(','), ...rows.map(r=>r.join(','))].join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = 'transactions.csv';
   a.click();
+  URL.revokeObjectURL(url);
 }
 
+// CSV Import (type,price,qty,ref,total,status,time)
 function importCSV() {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = '.csv';
+  input.accept = '.csv,text/csv';
   input.onchange = e => {
     const file = e.target.files[0];
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      const lines = reader.result.split('\n').slice(1);
+      const text = reader.result.trim();
+      if (!text) return;
+      const lines = text.split('\n');
+      const header = lines.shift().split(',').map(h=>h.trim().toLowerCase());
+      const idx = {
+        type: header.indexOf('type'),
+        price: header.indexOf('price'),
+        qty: header.indexOf('qty'),
+        ref: header.indexOf('ref'),
+        total: header.indexOf('total'),
+        status: header.indexOf('status'),
+        time: header.indexOf('time')
+      };
       for (const line of lines) {
         if (!line.trim()) continue;
-        const [type,qty,plate,amount,paid,left] = line.split(',');
-        transactions.push({
-          id: Date.now()+Math.random(),
-          type,
-          qty: parseInt(qty),
-          plate,
-          amount: parseFloat(amount),
-          paid: paid==='true',
-          left: left==='true'
-        });
+        const values = parseCSVLine(line);
+        const t = {
+          id: Date.now() + Math.random(),
+          type: values[idx.type],
+          price: parseFloat(values[idx.price]) || 0,
+          qty: parseInt(values[idx.qty]) || 1,
+          ref: values[idx.ref],
+          amount: parseFloat(values[idx.total]) || 0,
+          status: values[idx.status],
+          paid: values[idx.status].toLowerCase() === 'paid',
+          left: values[idx.status].toLowerCase() === 'left',
+          time: values[idx.time] || new Date().toLocaleString()
+        };
+        transactions.push(t);
       }
       save();
       render();
@@ -238,6 +270,27 @@ function importCSV() {
     reader.readAsText(file);
   };
   input.click();
+}
+
+function parseCSVLine(line) {
+  const res = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i=0;i<line.length;i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i+1] === '"') { cur += '"'; i++; }
+        else inQuotes = false;
+      } else cur += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { res.push(cur); cur=''; }
+      else cur += ch;
+    }
+  }
+  res.push(cur);
+  return res.map(s=>s.trim());
 }
 
 render();
